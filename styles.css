@@ -1,5 +1,6 @@
 body {
   background-color: #D9D7DE;
+  font-family: 'Raleway', sans-serif;
 }
 
 section {
@@ -43,7 +44,8 @@ ul {
 }
 
 .text {
-  width: 90%;
+  padding: 3%;
+  width: 86%;
   height: 70px;
 }
 

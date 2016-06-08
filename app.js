@@ -4,6 +4,7 @@ $(document).ready(function(){
 
 var toDoList = {
   url: "http://tiny-tiny.herokuapp.com/collections/winstonstodo",
+  toDoArr: [],
   init: function() {
     toDoList.styling();
     toDoList.events();
@@ -12,6 +13,7 @@ var toDoList = {
     toDoList.getToDo();
   },
   events: function () {
+
     // creating a new form item and saving it on page
     $('form').on('submit', function(event){
       event.preventDefault();
@@ -19,16 +21,24 @@ var toDoList = {
         todo: $(this).children('input').val()
       }
       toDoList.createToDo(newText)
-      $('form ul').append(`<li>${newText.todo}</li>`);
       $(this).children('input').val('');
     }),
     //clears all the new text -- need to make it clear completed
-    $('#clearButton').on('click', function (element,idx,arr) {
-    location.reload();
-  })
+    $('ul').on('click', 'a', function (event){
+      event.preventDefault();
+        var deleteToDoId = $(this).parent().data('id');
+        console.log("cleared", deleteToDoId);
+        $(this).parent().remove();
+        toDoList.deleteToDo(deleteToDoId);
+
+
+      $()  
+    });
+
 },
 
-/* ajax functions do not work */
+// AJAX getting the data from the server
+
   createToDo: function (newText) {
     $.ajax({
       url: toDoList.url,
@@ -36,9 +46,12 @@ var toDoList = {
       data: newText,
       success: function (data){
         console.log(" YAAY NEW TODO", data);
+        // make checkbox but returns as an empty object
+        $('form ul').append(`<li data-id="${data._id}"><a href="">&#10003;</a>${data.todo}</li>`);
+        toDoList.toDoArr.push(data);
       },
       error: function (err){
-        console.error("OH NOOOOO", err);
+        console.error("keep trying", err);
       }
     })
   },
@@ -49,7 +62,8 @@ var toDoList = {
       method:'PUT',
       data: newText,
       success: function (){
-
+        $edit = $('form ul').html("")
+        toDoList.getToDo();
       },
       error: function (err){
         console.error("OH NOOOOO", err);
@@ -62,9 +76,10 @@ var toDoList = {
       url: toDoList.url,
       method:'GET',
       success: function (data){
-        console.log("GOT TODODS", data);
+        $('form ul').html("")
         data.forEach(function(element) {
-            $('form ul').append(`<li>${element.todo}</li>`);
+          console.log(element);
+            $('form ul').append(`<li contenteditable="" data-id="${element._id}"><a href="">&#10003;</a>${element.todo}</li>`);
         })
       },
       error: function (err){
@@ -73,15 +88,18 @@ var toDoList = {
     })
   },
 
-  deleteToDo: function () {
+  deleteToDo: function (toDoId) {
+    // find item to delete from our to do list data
+    var deleteUrl = toDoList.url + '/' + toDoId;
     $.ajax({
-      url: '',
+      url: deleteUrl,
       method:'DELETE',
       success: function (){
-
+        console.log("WE DELETED SOMETHING");
+        toDoList.getToDo();
       },
       error: function (err){
-        console.error("OH NOOOOO", err);
+        console.error("nopeeeee", err);
       }
     })
   },
