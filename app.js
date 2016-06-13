@@ -23,6 +23,7 @@ var toDoList = {
       toDoList.createToDo(newText)
       $(this).children('input').val('');
     }),
+
     //clears all the new text -- need to make it clear completed
     $('ul').on('click', 'a', function (event){
       event.preventDefault();
@@ -30,10 +31,26 @@ var toDoList = {
         console.log("cleared", deleteToDoId);
         $(this).parent().remove();
         toDoList.deleteToDo(deleteToDoId);
-
-
-      $()  
     });
+
+    $('body').on('focusout','li',function (event) {
+      event.preventDefault();
+      var updateId = $(this).data('id');
+      var updatedContent = {
+        todo: $(this).text(),
+        _id: updateId
+      };
+      console.log("OUR CONTENT", updatedContent);
+      toDoList.updateToDo(updatedContent);
+    })
+
+
+    //update a todo item
+    $(document).on('dblclick', 'li', function (event){
+      event.preventDefault();
+      var updateId = $(this).data('id');
+      $(this).text('').append('<input data-id="' +updatedId +'" name="update">');
+    })
 
 },
 
@@ -56,12 +73,13 @@ var toDoList = {
     })
   },
 
-  updateToDo: function () {
+  updateToDo: function (newText) {
     $.ajax({
-      url: toDoList.url + "/" + '',
+      url: toDoList.url + "/" + newText._id,
       method:'PUT',
       data: newText,
-      success: function (){
+      success: function (data){
+        console.log("I HAVE BEEN UDPATED", data);
         $edit = $('form ul').html("")
         toDoList.getToDo();
       },
